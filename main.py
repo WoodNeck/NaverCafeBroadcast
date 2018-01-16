@@ -9,7 +9,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from utils.botconfig import BotConfig
 from discord.ext import commands
 from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.firefox.firefox_binary import FirefoxBinary
 
 des = "Naver Cafe Chatting Bot"
 prefix = "$"
@@ -18,9 +18,9 @@ class Bot(commands.Bot):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, command_prefix=prefix, **kwargs)
         self.prefix = prefix
-        options = Options()  
-        options.add_argument("--headless") 
-        self.driver = webdriver.Chrome(chrome_options=options)
+        os.environ["MOZ_HEADLESS"] = '1'
+        binary = FirefoxBinary('C:\\Program Files\\Mozilla Firefox\\firefox.exe', log_file=sys.stdout)
+        self.driver = webdriver.Firefox(firefox_binary=binary)
         self.naverId = None
         self.naverPwd = None
         self.target = None
@@ -68,7 +68,6 @@ def initialize(bot_class=Bot):
     @bot.event
     async def on_ready():
         bot.loginToChattingRoom()
-        print(bot.servers)
         server = None
         for item in bot.servers:
             server = item
@@ -120,8 +119,6 @@ def initialize(bot_class=Bot):
 
 if __name__ == '__main__':
     bot = initialize()
-
-    user_token = ""
     config = BotConfig()
     token = config.request("BotUser", "Token")
     bot.naverId = config.request("Naver", "ID")
