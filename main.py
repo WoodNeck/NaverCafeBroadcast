@@ -56,9 +56,17 @@ class Bot(commands.Bot):
                 msg = self.driver.find_element_by_xpath("//div[@msgsn='{}']".format(self.lastMsg + 1))
                 self.lastMsg = int(msg.get_attribute("msgsn"))
                 if not "my" in msg.get_attribute("class"):
+                    images = msg.find_elements_by_tag_name("img")
                     author = msg.find_element_by_class_name("name").text
-                    content = msg.find_element_by_class_name("_chat_msg").text
-                    asyncio.run_coroutine_threadsafe(self.send_message(self.channel, "{}/{}".format(author, content)),
+                    avatar = images[0].get_attribute("src")
+                    em = discord.Embed(colour=0x3EAF0E)
+                    if len(images) == 2:
+                        em.set_image(url=images[1].get_attribute("src").rstrip("?type=w128"))
+                    else:
+                        em.description = msg.find_element_by_class_name("_chat_msg").text
+                    em.set_footer(text=author, icon_url=avatar)
+                    
+                    asyncio.run_coroutine_threadsafe(self.send_message(self.channel, embed=em),
                                                     self.loop)
         except:
             return
