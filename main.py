@@ -5,6 +5,7 @@ import time
 import logging
 import discord
 import asyncio
+import platform
 from apscheduler.schedulers.background import BackgroundScheduler
 from utils.botconfig import BotConfig
 from discord.ext import commands
@@ -19,7 +20,11 @@ class Bot(commands.Bot):
         super().__init__(*args, command_prefix=prefix, **kwargs)
         self.prefix = prefix
         os.environ["MOZ_HEADLESS"] = '1'
-        binary = FirefoxBinary('C:\\Program Files\\Mozilla Firefox\\firefox.exe', log_file=sys.stdout)
+        binary = None
+        if platform.system() == "Windows":
+            binary = FirefoxBinary('C:\\Program Files\\Mozilla Firefox\\firefox.exe', log_file=sys.stdout)
+        else:
+            binary = FirefoxBinary()
         self.driver = webdriver.Firefox(firefox_binary=binary)
         self.naverId = None
         self.naverPwd = None
